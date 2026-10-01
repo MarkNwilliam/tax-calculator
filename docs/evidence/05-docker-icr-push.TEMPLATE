@@ -1,0 +1,36 @@
+###############################################################################
+#  THIS IS A TEMPLATE - NOT EVIDENCE. DO NOT SUBMIT THIS FILE.
+#
+#  Every <REAL ...> placeholder below must be replaced by the genuine value
+#  from a real push. Fabricated registry output is not acceptable evidence.
+#
+#  To produce the real file, add these three GitHub Actions secrets
+#  (Settings -> Secrets and variables -> Actions):
+#
+#    IBMCR_REGION      e.g. us-south
+#    IBMCR_NAMESPACE   e.g. your-namespace   (namespace only, no icr.io/ prefix)
+#    IBMCR_API_KEY     the API key string
+#
+#  Then the registry-push CI job writes the real output to
+#  docs/evidence/05-docker-icr-push and uploads it as an artifact.
+###############################################################################
+
+=== ibmcloud cr login ===
+API endpoint: https://icr.io
+Logging in to registry ...
+
+Login Succeeded
+
+=== docker tag tax-calculator:1.0.0 icr.io/<YOUR_NAMESPACE>/tax-calculator:1.0.0 ===
+
+=== docker push icr.io/<YOUR_NAMESPACE>/tax-calculator:1.0.0 ===
+The push refers to repository [icr.io/<YOUR_NAMESPACE>/tax-calculator]
+<REAL_DIGEST>: digest: sha256:<REAL_IMAGE_DIGEST> size: <REAL_MANIFEST_SIZE>
+Status: Downloaded newer image for icr.io/<YOUR_NAMESPACE>/tax-calculator:1.0.0
+
+=== ibmcloud cr image-list ===
+REPOSITORY     TAG    DIGEST                                   SIZE   CREATED
+tax-calculator 1.0.0  sha256:<REAL_IMAGE_DIGEST>                <REAL> <REAL>
+
+=== verify the tag exists in the registry ===
+icr.io/<YOUR_NAMESPACE>/tax-calculator:1.0.0
