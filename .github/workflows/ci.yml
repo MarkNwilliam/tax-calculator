@@ -216,6 +216,20 @@ jobs:
               -o jsonpath='{range .spec.tasks[*]}{.name}{"  runAfter="}{.runAfter}{"\n"}{end}'
           } 2>&1 | tee -a docs/evidence/06-tekton-install.txt
 
+      - name: Give the pipeline permission to deploy
+        run: |
+          set -o pipefail
+          mkdir -p docs/evidence
+          {
+            echo "=== service account for the PipelineRun ==="
+            kubectl create serviceaccount tax-calculator-pipeline --dry-run=client -o yaml | kubectl apply -f -
+            kubectl create clusterrolebinding tax-calculator-pipeline-admin \
+              --clusterrole=cluster-admin \
+              --serviceaccount=default:tax-calculator-pipeline \
+              --dry-run=client -o yaml | kubectl apply -f -
+            kubectl get serviceaccount tax-calculator-pipeline
+          } 2>&1 | tee -a docs/evidence/06-tekton-install.txt
+
       - name: Run the Tekton pipeline
         run: |
           set -o pipefail
