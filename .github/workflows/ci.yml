@@ -181,11 +181,41 @@ jobs:
             echo " <- registry answers"
             echo
             echo "=== let the kubelets pull from that registry ==="
+            # Build hosts.toml here on the runner with a heredoc and copy it
+            # in. Writing it through nested `docker exec sh -c` quoting emitted
+            # backslashes that containerd silently ignored, so the kubelet
+            # fell back to HTTPS and failed with:
+            #   http: server gave HTTP response to HTTPS client
+            cat > /tmp/hosts.toml <<EOF
+          [host."http://${REGISTRY_IP}:${REGISTRY_PORT}"]
+            capabilities = ["pull","resolve","push"]
+            skip_verify = true
+          EOF
+            NODE=$(kind get nodes --name tax-pipeline | head -1)
             for node in $(kind get nodes --name tax-pipeline); do
               docker exec "$node" mkdir -p "/etc/containerd/certs.d/${REGISTRY_IP}:${REGISTRY_PORT}"
-              docker exec "$node" sh -c "printf '[host.\\"http://${REGISTRY_IP}:${REGISTRY_PORT}\\"]\\n  capabilities = [\\"pull\\",\\"resolve\\",\\"push\\"]\\n  skip_verify = true\\n' > /etc/containerd/certs.d/${REGISTRY_IP}:${REGISTRY_PORT}/hosts.toml"
+              docker cp /tmp/hosts.toml "$node":"/etc/containerd/certs.d/${REGISTRY_IP}:${REGISTRY_PORT}/hosts.toml"
               echo "configured $node"
             done
+            echo
+            echo "=== hosts.toml as the node actually received it ==="
+            docker exec "$NODE" cat "/etc/containerd/certs.d/${REGISTRY_IP}:${REGISTRY_PORT}/hosts.toml"
+            echo
+            echo "=== pre-flight: can the kubelet pull from this registry at all? ==="
+            # Proves the config works in ~20s. Without it a bad registry config
+            # only shows up as a 5-minute ImagePullBackOff in the deploy task.
+            docker pull alpine:3.20
+            docker tag alpine:3.20 "${REGISTRY_IP}:${REGISTRY_PORT}/pull-probe:1.0"
+            docker push "${REGISTRY_IP}:${REGISTRY_PORT}/pull-probe:1.0"
+            if ! docker exec "$NODE" crictl pull "${REGISTRY_IP}:${REGISTRY_PORT}/pull-probe:1.0"; then
+              echo
+              echo "!! containerd still cannot pull from the insecure registry"
+              echo "   what the node has:"
+              docker exec "$NODE" ls -R /etc/containerd/certs.d || true
+              docker exec "$NODE" cat /etc/containerd/config.toml | head -20 || true
+              exit 1
+            fi
+            echo "containerd pull OK - the deploy task should be able to pull"
             echo
             echo "=== install Tekton Pipelines v1.15.3 ==="
             kubectl apply --filename \
