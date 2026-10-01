@@ -1,7 +1,7 @@
 # Builds the container image and pushes it to the registry.
 # Kaniko builds without needing a Docker daemon, which is why it works
 # inside a Kubernetes pod and on a kind node.
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: build-image

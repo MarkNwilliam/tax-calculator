@@ -1,7 +1,7 @@
 # Runs the Jasmine suite inside the cluster before anything is built.
 # Same `npm test` developers run locally - the pipeline has no special
 # test path, so a green pipeline means a green local checkout.
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: unit-tests

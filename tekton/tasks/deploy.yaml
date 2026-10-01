@@ -1,7 +1,7 @@
 # Deploys whatever image the build task produced and proves it answers.
 # Uses the pipeline result rather than a hard-coded tag, so the deployed
 # image is exactly the one that was just built.
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: deploy

@@ -1,6 +1,6 @@
 # Stitches the four tasks into the delivery path required by the brief:
 #   unit-tests -> build-image -> push-image (optional) -> deploy
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: tax-calculator-pipeline

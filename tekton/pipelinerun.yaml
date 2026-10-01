@@ -1,5 +1,5 @@
 # Runs the pipeline against the local kind registry used in CI.
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: tax-calculator-run

@@ -1,7 +1,7 @@
 # Retags the image into an IBM Cloud Container Registry namespace.
 # Requires IBMCR_REGISTRY and IBMCR_APIKEY secrets; skipped by the
 # pipeline's `when` guard unless push-image is explicitly enabled.
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: push-image
