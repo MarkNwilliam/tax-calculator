@@ -245,7 +245,7 @@ jobs:
           mkdir -p docs/evidence
           {
           REGISTRY_IP=$(cat /tmp/registry-ip)
-          sed "s#kind-registry:5000#${REGISTRY_IP}:5000#" tekton/pipelinerun.yaml > /tmp/pipelinerun.yaml
+          sed "s#kind-registry:5000#${REGISTRY_IP}:5000#" tekton/run.yaml > /tmp/pipelinerun.yaml
           echo "--- pipelinerun applied ---"
           cat /tmp/pipelinerun.yaml
           kubectl apply -f /tmp/pipelinerun.yaml

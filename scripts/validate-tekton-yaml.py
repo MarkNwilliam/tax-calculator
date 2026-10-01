@@ -27,7 +27,7 @@ def harden(node):
     return node
 
 fails=0
-for f in sorted(glob.glob('tekton/tasks/*.yaml')+glob.glob('tekton/pipeline.yaml')+glob.glob('tekton/pipelinerun.yaml')):
+for f in sorted(glob.glob('tekton/tasks/*.yaml')+glob.glob('tekton/pipeline.yaml')+glob.glob('tekton/pipelinerun.yaml')+glob.glob('tekton/run.yaml')+glob.glob('tekton/tasks.yaml')):
     for doc in yaml.safe_load_all(open(f)):
         if not doc: continue
         key=(doc['apiVersion'].split('/')[0], doc['apiVersion'].split('/')[1], doc['kind'])

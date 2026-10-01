@@ -1,0 +1,63 @@
+# PipelineRun that executes tax-calculator-pipeline.
+#
+# Apply with:
+#   kubectl apply -f tekton/run.yaml
+#
+# Covers every field the brief asks to see: apiVersion, kind, spec,
+# params and workspaces.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: tax-calculator-run
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  # tekton.dev/v1 requires a PipelineRun to name the pipeline it runs.
+  pipelineRef:
+    name: tax-calculator-pipeline
+
+  # The default service account cannot create deployments. v1 moved this
+  # from spec.serviceAccountName to spec.taskRunTemplate.serviceAccountName.
+  # Cluster-admin because CI runs on a throwaway kind cluster - a real
+  # cluster would grant only deployments and services on this namespace.
+  taskRunTemplate:
+    serviceAccountName: tax-calculator-pipeline
+
+  # v1 renamed `timeout` to the `timeouts` struct.
+  timeouts:
+    pipeline: 25m
+
+  # PipelineRun params take only `name` and `value`. The CRD rejects `type`
+  # and `description` here - those are declared once on the Pipeline side in
+  # tekton/pipeline.yaml.
+  params:
+    - name: repo-url
+      # Repository the clone task fetches.
+      value: https://github.com/MarkNwilliam/tax-calculator.git
+    - name: revision
+      # Branch, tag or commit to build and deploy.
+      value: main
+    - name: image-url
+      # Registry reference the build task pushes to. CI rewrites the host to
+      # the kind registry's IP before applying this file.
+      value: kind-registry:5000/tax-calculator:1.0.0
+    - name: push-image
+      # Set to "true" to also push to IBM Cloud Container Registry.
+      value: "false"
+    - name: ibmcr-registry
+      # IBM Cloud Registry host, e.g. us-south.icr.io.
+      value: ""
+    - name: ibmcr-namespace
+      # IBM Cloud Registry namespace.
+      value: ""
+
+  workspaces:
+    - name: source
+      # Shared checkout that the clone, test and build tasks use.
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

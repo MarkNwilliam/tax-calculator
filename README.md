@@ -42,7 +42,7 @@ The image installs production dependencies only and drops to the unprivileged
 ```bash
 kubectl apply -f tekton/tasks/
 kubectl apply -f tekton/pipeline.yaml
-kubectl apply -f tekton/pipelinerun.yaml
+kubectl apply -f tekton/run.yaml   # or tekton/pipelinerun.yaml
 kubectl get pipelinerun --watch
 ```
 
