@@ -21,6 +21,9 @@ npm test                # 7-spec acceptance suite (graded)
 npm run test:regression # 41-spec regression suite
 npm run test:all       # both, 48 specs
 npm start               # http://localhost:3000
+
+# static nginx container (the five-file variant)
+cd web && docker build -t tax-calculator-web:1.0.0 .
 ```
 
 ## Containerise it

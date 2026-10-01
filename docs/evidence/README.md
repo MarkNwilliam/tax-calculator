@@ -5,7 +5,9 @@ submission has real output rather than a description of it.
 
 | File | Stage |
 |---|---|
-| `01-jasmine-unit-tests.txt` | `npm test` - the Jasmine suite |
+| `01-jasmine-tests-passing` | `npx jasmine` - 7 specs, 0 failures |
+| `01-jasmine-unit-tests.txt` | `npm run test:all` - the full 48-spec run |
+| `02-dockerfile` | The nginx `Dockerfile` for the static container (6 lines) |
 | `02-docker-build.txt` | `docker build -t tax-calculator:1.0.0 .` |
 | `03-docker-image-details.txt` | image tags and `docker inspect` metadata |
 | `04-docker-run.txt` | starting the container, logs, `docker ps` |
