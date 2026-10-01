@@ -205,8 +205,14 @@ jobs:
             # Proves the config works in ~20s. Without it a bad registry config
             # only shows up as a 5-minute ImagePullBackOff in the deploy task.
             docker pull alpine:3.20
-            docker tag alpine:3.20 "${REGISTRY_IP}:${REGISTRY_PORT}/pull-probe:1.0"
-            docker push "${REGISTRY_IP}:${REGISTRY_PORT}/pull-probe:1.0"
+            # Push through the published host port: the Docker daemon treats
+            # localhost as an insecure registry automatically, whereas pushing
+            # straight to ${REGISTRY_IP} fails with
+            #   http: server gave HTTP response to HTTPS client
+            # Both land in the same registry, so containerd can then pull the
+            # probe by its in-network address.
+            docker tag alpine:3.20 "localhost:5001/pull-probe:1.0"
+            docker push "localhost:5001/pull-probe:1.0"
             if ! docker exec "$NODE" crictl pull "${REGISTRY_IP}:${REGISTRY_PORT}/pull-probe:1.0"; then
               echo
               echo "!! containerd still cannot pull from the insecure registry"
