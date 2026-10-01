@@ -6,7 +6,9 @@ metadata:
   labels:
     app.kubernetes.io/part-of: tax-calculator
 spec:
-  timeout: 25m
+  # tekton.dev/v1 renamed `timeout` to the `timeouts` struct.
+  timeouts:
+    pipeline: 25m
   workspaces:
     - name: source
       volumeClaimTemplate:
