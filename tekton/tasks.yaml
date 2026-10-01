@@ -1,0 +1,73 @@
+# The two new Tekton task definitions: npm and Jasmine.
+#
+# These are the two focused tasks the brief asks for, split out of the
+# single combined `unit-tests` task in tekton/tasks/unit-tests.yaml:
+#
+#   npm-install     - installs dependencies from package-lock.json
+#   jasmine-tests   - runs the Jasmine suites
+#
+# Both read the shared `source` workspace, so a PipelineRun that wires
+# them in sequence installs once and then tests. Run with:
+#
+#   oc apply -f tekton/tasks.yaml
+#
+# Validated against the v1.15.3 CRD schemas by
+# scripts/validate-tekton-yaml.py.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: npm-install
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Install Node dependencies with npm ci
+  params:
+    - name: source-dir
+      description: Directory holding package.json and package-lock.json
+      type: string
+      default: /workspace/source
+  workspaces:
+    - name: source
+  steps:
+    - name: npm-ci
+      image: node:20
+      workingDir: $(params.source-dir)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        echo "Node: $(node --version)  npm: $(npm --version)"
+        echo "=== npm ci ==="
+        npm ci
+      env:
+        - name: HOME
+          value: /tekton/home
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: jasmine-tests
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Run the Jasmine unit tests (7-spec acceptance suite plus 41-spec regression suite)
+  params:
+    - name: source-dir
+      description: Directory holding package.json
+      type: string
+      default: /workspace/source
+  workspaces:
+    - name: source
+  steps:
+    - name: jasmine
+      image: node:20
+      workingDir: $(params.source-dir)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        echo "=== npm test (7-spec acceptance suite) ==="
+        npm test
+        echo "=== npm run test:regression (41-spec suite) ==="
+        npm run test:regression
+      env:
+        - name: HOME
+          value: /tekton/home
