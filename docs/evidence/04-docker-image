@@ -1,0 +1,29 @@
+$ docker run -d --name tax-calculator -p 8080:8080 tax-calculator:1.0.0
+
+# Provenance: GitHub Actions ubuntu-latest runner (no local container runtime).
+# Verbatim job log, timestamps and ANSI colour codes stripped.
+#   run : https://github.com/MarkNwilliam/tax-calculator/actions/runs/36865170469
+#   job : 'Deploy and test the container' - conclusion: success
+
+# Result: the tax-calculator container is running with 8080 published.
+
+=== docker run -d --name tax-calculator -p 8080:8080 tax-calculator:1.0.0 ===
+400b1499c1b4ed60ca5be803f792e8a9e9d9a03f0cbd0c3e945c66d493302a2f
+
+=== container log ===
+tax-calculator listening on port 8080
+
+=== docker ps ===
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS                            PORTS                                         NAMES
+400b1499c1b4   tax-calculator:1.0.0   "docker-entrypoint.s…"   4 seconds ago   Up 4 seconds (health: starting)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp   tax-calculator
+
+=== docker ps (wide, showing the published port) ===
+NAMES            IMAGE                  STATUS                            PORTS
+tax-calculator   tax-calculator:1.0.0   Up 4 seconds (health: starting)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+
+=== docker port tax-calculator ===
+8080/tcp -> 0.0.0.0:8080
+8080/tcp -> [::]:8080
+
+=== the application answering on port 8080 ===
+{"status":"ok","service":"tax-calculator","version":"1.0.0"}
