@@ -24,7 +24,7 @@ spec:
     - name: source
   steps:
     - name: clone
-      image: alpine/git:v2.47.0
+      image: alpine/git:v2.49.1
       workingDir: $(workspaces.source.path)
       # alpine/git has no bash, so this step stays POSIX sh.
       script: |

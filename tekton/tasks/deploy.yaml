@@ -20,10 +20,10 @@ spec:
       description: In-cluster URL of the running application
   steps:
     - name: deploy
-      image: bitnami/kubectl:1.30
+      image: alpine/k8s:1.34.1
       script: |
-        #!/usr/bin/env bash
-        set -euo pipefail
+        #!/bin/sh
+        set -eu
         APP="$(params.app-name)"
         IMAGE="$(params.image-url)"
 
