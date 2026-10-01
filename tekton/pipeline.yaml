@@ -9,6 +9,14 @@ metadata:
 spec:
   description: Build, test, publish and deploy the Tax Calculator
   params:
+    - name: repo-url
+      description: Repository the clone task fetches
+      type: string
+      default: https://github.com/MarkNwilliam/tax-calculator.git
+    - name: revision
+      description: Branch, tag or commit to deploy
+      type: string
+      default: main
     - name: image-url
       description: Registry reference the build task pushes to
       type: string
@@ -30,9 +38,23 @@ spec:
       description: Where the deployed application is reachable
       value: $(tasks.deploy.results.url)
   tasks:
+    # Must be first: it fills the shared workspace everything else reads.
+    - name: clone-source
+      taskRef:
+        name: clone-source
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.revision)
+
     - name: unit-tests
       taskRef:
         name: unit-tests
+      runAfter: [clone-source]
       workspaces:
         - name: source
           workspace: source

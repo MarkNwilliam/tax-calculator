@@ -21,6 +21,10 @@ spec:
             requests:
               storage: 1Gi
   params:
+    - name: repo-url
+      value: https://github.com/MarkNwilliam/tax-calculator.git
+    - name: revision
+      value: main
     - name: image-url
       value: kind-registry:5001/tax-calculator:1.0.0
     - name: push-image

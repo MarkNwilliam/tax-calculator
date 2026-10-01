@@ -1,0 +1,41 @@
+# Puts the application source into the shared workspace.
+#
+# A PipelineRun workspace declared with a volumeClaimTemplate starts as an
+# empty volume - Tekton does not fill it. Without this task, unit-tests and
+# build-image would run against a directory that has no package.json in it.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: clone-source
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Clone the repository into the shared source workspace
+  params:
+    - name: url
+      description: Repository to clone
+      type: string
+      default: https://github.com/MarkNwilliam/tax-calculator.git
+    - name: revision
+      description: Branch, tag or commit to check out
+      type: string
+      default: main
+  workspaces:
+    - name: source
+  steps:
+    - name: clone
+      image: alpine/git:v2.47.0
+      workingDir: $(workspaces.source.path)
+      # alpine/git has no bash, so this step stays POSIX sh.
+      script: |
+        #!/bin/sh
+        set -eu
+        echo "=== cloning $(params.url) at $(params.revision) ==="
+        # The workspace may hold leftovers from a previous retry.
+        rm -rf ./* ./.??* 2>/dev/null || true
+        git clone "$(params.url)" .
+        git checkout "$(params.revision)"
+        echo
+        echo "=== checked out ==="
+        git log --oneline -1
+        ls

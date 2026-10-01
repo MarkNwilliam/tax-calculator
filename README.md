@@ -41,7 +41,7 @@ kubectl apply -f tekton/pipelinerun.yaml
 kubectl get pipelinerun --watch
 ```
 
-The pipeline runs `unit-tests` -> `build-image` -> `deploy`, with an optional
+The pipeline runs `clone-source` -> `unit-tests` -> `build-image` -> `deploy`, with an optional
 `push-image` step into IBM Cloud Container Registry that is skipped unless
 credentials are supplied. The deploy task consumes the build task's image
 result, so what gets deployed is exactly what was built.
