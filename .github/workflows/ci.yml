@@ -29,7 +29,7 @@ jobs:
           npm test 2>&1 | tee docs/evidence/01-jasmine-unit-tests.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: evidence
+          name: evidence-unit-tests
           path: docs/evidence
 
   build-image:
@@ -59,7 +59,7 @@ jobs:
           } 2>&1 | tee docs/evidence/03-docker-image-details.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: evidence
+          name: evidence-build-image
           path: docs/evidence
 
   test-container:
@@ -127,7 +127,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: evidence
+          name: evidence-container
           path: docs/evidence
 
   tekton-pipeline:
@@ -146,16 +146,19 @@ jobs:
           set -o pipefail
           mkdir -p docs/evidence
           {
+            echo "=== create the cluster first ==="
+            # The `kind` docker network only exists once the cluster does, so
+            # the registry cannot join it any earlier than this.
+            kind create cluster --name tax-pipeline --wait 180s
+            kubectl get nodes -o wide
+            echo
             echo "=== registry Kaniko will push into ==="
             docker run -d --restart=always -p 5001:5000 --name kind-registry registry:2
             docker network connect kind kind-registry
             REGISTRY_IP=$(docker inspect -f '{{.NetworkSettings.Networks.kind.IPAddress}}' kind-registry)
             echo "registry container IP on the kind network: $REGISTRY_IP"
             echo "$REGISTRY_IP" > /tmp/registry-ip
-            echo
-            echo "=== create the cluster ==="
-            kind create cluster --name tax-pipeline --wait 180s
-            kubectl get nodes -o wide
+            curl -sS "http://${REGISTRY_IP}:5001/v2/_catalog" && echo " <- registry answers"
             echo
             echo "=== let the kubelets pull from that registry ==="
             for node in $(kind get nodes); do
@@ -272,5 +275,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: evidence
+          name: evidence-tekton
           path: docs/evidence
