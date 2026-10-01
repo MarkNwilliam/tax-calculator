@@ -244,13 +244,26 @@ jobs:
             echo "=== all taskruns ==="
             kubectl get taskrun -o wide
             echo
+            echo "=== all pods ==="
+            kubectl get pods -o wide
+            echo
+            echo "=== workspace claims ==="
+            kubectl get pvc
+            echo
             for tr in $(kubectl get taskrun -o name 2>/dev/null | cut -d/ -f2); do
               echo
               echo "############ taskrun: $tr ############"
-              kubectl get taskrun "$tr" -o jsonpath='{range .status.steps[*]}step {.name}: {.terminated.reason}{"\n"}{end}'
-              echo "--- logs ---"
-              kubectl logs "$tr" --all-containers --prefix --tail=200 2>&1 || echo "(no logs)"
+              kubectl get taskrun "$tr" -o jsonpath='{.status.conditions[*]}{"\n"}'
+              echo "--- steps ---"
+              kubectl get taskrun "$tr" -o jsonpath='{range .status.steps[*]}step {.name}: {.terminated.reason} exit={.terminated.exitCode}{"\n"}{end}'
+              echo "--- describe ---"
+              kubectl describe taskrun "$tr" | tail -30
+              echo "--- logs (label selector) ---"
+              kubectl logs -l "tekton.dev/taskRun=$tr" --all-containers --prefix --tail=200 2>&1 || echo "(no logs)"
             done
+            echo
+            echo "=== recent cluster events ==="
+            kubectl get events --sort-by=.lastTimestamp 2>/dev/null | tail -40
           } 2>&1 | tee docs/evidence/08-tekton-task-logs.txt
 
       - name: Verify the pipeline-deployed application
