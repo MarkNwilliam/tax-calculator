@@ -1,0 +1,52 @@
+# Retags the image into an IBM Cloud Container Registry namespace.
+# Requires IBMCR_REGISTRY and IBMCR_APIKEY secrets; skipped by the
+# pipeline's `when` guard unless push-image is explicitly enabled.
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: push-image
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Tag and push the image to IBM Cloud Container Registry
+  params:
+    - name: image-url
+      type: string
+    - name: registry
+      description: e.g. us-south.icr.io/cp-xxxx
+      type: string
+    - name: namespace
+      description: e.g. tax-calculator
+      type: string
+  results:
+    - name: ibmcr-image-url
+  steps:
+    - name: tag-and-push
+      image: gcr.io/kaniko-project/executor:v1.23.2-debug
+      args:
+        - --context=dir:///workspace/source
+        - --dockerfile=Dockerfile
+        - --destination=$(params.registry)/$(params.namespace)/tax-calculator:1.0.0
+        - --no-push=false
+      env:
+        - name: DOCKER_CONFIG
+          value: /kaniko/.docker
+        - name: REGISTRY_AUTH_FILE
+          value: /tekton/secrets/registry-auth
+      volumeMounts:
+        - name: registry-auth
+          mountPath: /tekton/secrets/registry-auth
+    - name: report
+      image: alpine:3.20
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        URL="$(params.registry)/$(params.namespace)/tax-calculator:1.0.0"
+        printf '%s' "$URL" > "$(results.ibmcr-image-url.path)"
+        echo "Pushed to IBM Cloud Container Registry: $URL"
+  workspaces:
+    - name: source
+  volumes:
+    - name: registry-auth
+      secret:
+        secretName: ibmcr-registry-auth

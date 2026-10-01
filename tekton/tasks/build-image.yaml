@@ -1,0 +1,60 @@
+# Builds the container image and pushes it to the registry.
+# Kaniko builds without needing a Docker daemon, which is why it works
+# inside a Kubernetes pod and on a kind node.
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-image
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Build the Tax Calculator image and push it to a registry
+  params:
+    - name: context-dir
+      type: string
+      default: /workspace/source
+    - name: dockerfile
+      type: string
+      default: Dockerfile
+    - name: image-url
+      description: Full image reference, e.g. kind-registry:5001/tax-calculator:1.0.0
+      type: string
+    - name: insecure
+      description: Allow a plain-HTTP registry such as the kind registry
+      type: string
+      default: "true"
+  workspaces:
+    - name: source
+  results:
+    - name: image-url
+      description: The image reference that was built
+    - name: image-digest
+      description: Digest reported by the registry
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor:v1.23.2-debug
+      workingDir: $(params.context-dir)
+      args:
+        - --dockerfile=$(params.dockerfile)
+        - --context=dir://$(params.context-dir)
+        - --destination=$(params.image-url)
+        - --no-push=false
+        - --reproducible
+        - --single-snapshot
+        # The kind registry speaks plain HTTP; a real registry drops these.
+        - --insecure=$(params.insecure)
+        - --skip-tls-verify=$(params.insecure)
+        - --skip-tls-verify-pull=$(params.insecure)
+      env:
+        - name: DOCKER_CONFIG
+          value: /tekton/home/.docker
+    - name: report
+      image: alpine:3.20
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        IMAGE="$(params.image-url)"
+        DIGEST="$(echo "$IMAGE" | sed 's#.*@##')"
+        printf '%s' "$IMAGE"      > "$(results.image-url.path)"
+        printf '%s' "${DIGEST:-unknown}" > "$(results.image-digest.path)"
+        echo "Built and pushed: $IMAGE"

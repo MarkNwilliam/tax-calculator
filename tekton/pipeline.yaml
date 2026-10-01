@@ -1,0 +1,79 @@
+# Stitches the four tasks into the delivery path required by the brief:
+#   unit-tests -> build-image -> push-image (optional) -> deploy
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: tax-calculator-pipeline
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Build, test, publish and deploy the Tax Calculator
+  params:
+    - name: image-url
+      description: Registry reference the build task pushes to
+      type: string
+      default: kind-registry:5001/tax-calculator:1.0.0
+    - name: push-image
+      description: Set to "true" to also push to IBM Cloud Container Registry
+      type: string
+      default: "false"
+    - name: ibmcr-registry
+      type: string
+      default: ""
+    - name: ibmcr-namespace
+      type: string
+      default: ""
+  workspaces:
+    - name: source
+  results:
+    - name: deployed-url
+      description: Where the deployed application is reachable
+      value: $(tasks.deploy.results.url)
+  tasks:
+    - name: unit-tests
+      taskRef:
+        name: unit-tests
+      workspaces:
+        - name: source
+          workspace: source
+
+    - name: build-image
+      taskRef:
+        name: build-image
+      runAfter: [unit-tests]
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: image-url
+          value: $(params.image-url)
+
+    - name: push-image
+      taskRef:
+        name: push-image
+      runAfter: [build-image]
+      # Skipped unless IBM Cloud credentials are supplied.
+      when:
+        - input: $(params.push-image)
+          operator: in
+          values: ["true"]
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: image-url
+          value: $(params.image-url)
+        - name: registry
+          value: $(params.ibmcr-registry)
+        - name: namespace
+          value: $(params.ibmcr-namespace)
+
+    - name: deploy
+      taskRef:
+        name: deploy
+      runAfter: [build-image]
+      workspaces: []
+      params:
+        # Deploys exactly the image the build task just produced.
+        - name: image-url
+          value: $(tasks.build-image.results.image-url)

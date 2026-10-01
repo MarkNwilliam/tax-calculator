@@ -1,0 +1,62 @@
+# Deploys whatever image the build task produced and proves it answers.
+# Uses the pipeline result rather than a hard-coded tag, so the deployed
+# image is exactly the one that was just built.
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy
+  labels:
+    app.kubernetes.io/part-of: tax-calculator
+spec:
+  description: Deploy the Tax Calculator to the cluster and verify it responds
+  params:
+    - name: image-url
+      type: string
+    - name: app-name
+      type: string
+      default: tax-calculator
+  results:
+    - name: url
+      description: In-cluster URL of the running application
+  steps:
+    - name: deploy
+      image: bitnami/kubectl:1.30
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        APP="$(params.app-name)"
+        IMAGE="$(params.image-url)"
+
+        echo "=== deploying $IMAGE ==="
+        kubectl create deployment "$APP" --image="$IMAGE" --port=3000 --dry-run=client -o yaml \
+          | kubectl apply -f -
+        kubectl create service clusterip "$APP" --tcp=80:3000 --dry-run=client -o yaml \
+          | kubectl apply -f -
+
+        echo "=== waiting for the deployment to become available ==="
+        kubectl rollout status deployment/"$APP" --timeout=300s
+        kubectl get deployment "$APP" -o wide
+
+    - name: verify
+      image: curlimages/curl:8.10.1
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        APP="$(params.app-name)"
+        for i in $(seq 1 30); do
+          if curl -sf "http://$APP/api/health" > /tmp/health.json; then break; fi
+          echo "attempt $i: waiting for $APP to answer..."
+          sleep 5
+        done
+        echo "=== GET /api/health ==="
+        cat /tmp/health.json; echo
+        grep -q '"status":"ok"' /tmp/health.json
+
+        echo "=== POST /api/calculate ==="
+        curl -sf -X POST "http://$APP/api/calculate" \
+          -H 'Content-Type: application/json' \
+          -d '{"grossIncome":50000,"deductions":0}' | tee /tmp/calc.json; echo
+        grep -q '"incomeTax":6303.5' /tmp/calc.json
+
+        printf 'http://%s' "$APP" > "$(results.url.path)"
+        echo "Deployment verified"
