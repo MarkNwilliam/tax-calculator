@@ -7,22 +7,23 @@
 (function () {
   'use strict';
 
-  var form   = document.getElementById('tax-form');
-  var error  = document.getElementById('error');
+  var form    = document.getElementById('tax-form');
+  var error   = document.getElementById('error');
   var results = document.getElementById('results');
 
   var fields = {
     grossIncome: document.getElementById('gross-income'),
-    deductions:  document.getElementById('deductions'),
-    vatBase:     document.getElementById('vat-base'),
-    vatRate:     document.getElementById('vat-rate')
+    taxDue:     document.getElementById('tax-due'),
+    deductions: document.getElementById('deductions'),
+    vatBase:    document.getElementById('vat-base'),
+    vatRate:    document.getElementById('vat-rate')
   };
 
   var out = {
     taxable: document.getElementById('r-taxable'),
     tax:     document.getElementById('r-tax'),
-    rate:    document.getElementById('r-rate'),
     vat:     document.getElementById('r-vat'),
+    rate:    document.getElementById('r-rate'),
     take:    document.getElementById('r-take')
   };
 
@@ -46,9 +47,9 @@
 
   function render(r) {
     out.taxable.textContent = taxCalculator.formatCurrency(r.taxableIncome);
-    out.tax.textContent     = taxCalculator.formatCurrency(r.incomeTax);
-    out.rate.textContent    = r.effectiveRate.toFixed(2) + '%';
+    out.tax.textContent     = taxCalculator.formatCurrency(r.taxesOwed);
     out.vat.textContent     = taxCalculator.formatCurrency(r.vat);
+    out.rate.textContent    = r.effectiveRate.toFixed(2) + '%';
     out.take.textContent    = taxCalculator.formatCurrency(r.takeHome);
     results.hidden = false;
   }
@@ -56,14 +57,29 @@
   function calculate(event) {
     if (event) event.preventDefault();
     try {
-      var result = taxCalculator.calculateTakeHome({
-        grossIncome: num(fields.grossIncome, 'Gross income'),
-        deductions:  num(fields.deductions,  'Deductions'),
-        vatBase:     num(fields.vatBase,     'VAT-able spend'),
-        vatRate:     num(fields.vatRate,     'VAT rate') / 100
+      var grossIncome = num(fields.grossIncome, 'Your Total Income');
+      var taxDue      = num(fields.taxDue, 'Tax Due');
+      var deductions  = num(fields.deductions, 'Deductions');
+
+      var base = taxCalculator.calculateTakeHome({
+        grossIncome: grossIncome,
+        deductions:  deductions,
+        vatBase:     num(fields.vatBase, 'VAT-able Spend'),
+        vatRate:     num(fields.vatRate, 'VAT Rate') / 100
       });
+
+      // "Tax Due" is any additional amount already assessed, so the Taxes
+      // Owed figure is the calculated income tax plus that amount.
+      var taxesOwed = taxCalculator.round2(base.incomeTax + taxDue);
+
       clearError();
-      render(result);
+      render({
+        taxableIncome: base.taxableIncome,
+        taxesOwed:     taxesOwed,
+        vat:           base.vat,
+        effectiveRate: base.effectiveRate,
+        takeHome:      taxCalculator.round2(base.takeHome - taxDue)
+      });
     } catch (e) {
       showError(e instanceof RangeError
         ? e.message + '. Enter zero or a positive amount.'
