@@ -6,6 +6,9 @@ metadata:
   labels:
     app.kubernetes.io/part-of: tax-calculator
 spec:
+  # Required: a PipelineRun must name the pipeline it runs.
+  pipelineRef:
+    name: tax-calculator-pipeline
   # tekton.dev/v1 renamed `timeout` to the `timeouts` struct.
   timeouts:
     pipeline: 25m
