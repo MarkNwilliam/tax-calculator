@@ -26,6 +26,6 @@ spec:
     - name: revision
       value: main
     - name: image-url
-      value: kind-registry:5001/tax-calculator:1.0.0
+      value: kind-registry:5000/tax-calculator:1.0.0
     - name: push-image
       value: "false"

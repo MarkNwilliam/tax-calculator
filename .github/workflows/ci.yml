@@ -156,14 +156,25 @@ jobs:
             docker run -d --restart=always -p 5001:5000 --name kind-registry registry:2
             docker network connect kind kind-registry
             REGISTRY_IP=$(docker inspect -f '{{.NetworkSettings.Networks.kind.IPAddress}}' kind-registry)
-            echo "registry container IP on the kind network: $REGISTRY_IP"
+            # 5001 is the port published on the *host*. Inside the kind network
+            # the registry is reached on its own port 5000, which is what
+            # Kaniko and containerd must use.
+            REGISTRY_PORT=5000
+            echo "registry: ${REGISTRY_IP}:${REGISTRY_PORT} (host published on 5001)"
             echo "$REGISTRY_IP" > /tmp/registry-ip
-            curl -sS "http://${REGISTRY_IP}:5001/v2/_catalog" && echo " <- registry answers"
+            echo
+            echo "=== is it actually listening? ==="
+            curl -sS --max-time 10 "http://${REGISTRY_IP}:${REGISTRY_PORT}/v2/_catalog" || {
+              echo "!! registry unreachable - Kaniko and containerd would both fail"
+              docker logs kind-registry
+              exit 1
+            }
+            echo " <- registry answers"
             echo
             echo "=== let the kubelets pull from that registry ==="
             for node in $(kind get nodes --name tax-pipeline); do
-              docker exec "$node" mkdir -p "/etc/containerd/certs.d/${REGISTRY_IP}:5001"
-              docker exec "$node" sh -c "printf '[host.\\"http://${REGISTRY_IP}:5001\\"]\\n  capabilities = [\\"pull\\",\\"resolve\\",\\"push\\"]\\n  skip_verify = true\\n' > /etc/containerd/certs.d/${REGISTRY_IP}:5001/hosts.toml"
+              docker exec "$node" mkdir -p "/etc/containerd/certs.d/${REGISTRY_IP}:${REGISTRY_PORT}"
+              docker exec "$node" sh -c "printf '[host.\\"http://${REGISTRY_IP}:${REGISTRY_PORT}\\"]\\n  capabilities = [\\"pull\\",\\"resolve\\",\\"push\\"]\\n  skip_verify = true\\n' > /etc/containerd/certs.d/${REGISTRY_IP}:${REGISTRY_PORT}/hosts.toml"
               echo "configured $node"
             done
             echo
@@ -211,7 +222,7 @@ jobs:
           mkdir -p docs/evidence
           {
           REGISTRY_IP=$(cat /tmp/registry-ip)
-          sed "s#kind-registry:5001#${REGISTRY_IP}:5001#" tekton/pipelinerun.yaml > /tmp/pipelinerun.yaml
+          sed "s#kind-registry:5000#${REGISTRY_IP}:5000#" tekton/pipelinerun.yaml > /tmp/pipelinerun.yaml
           echo "--- pipelinerun applied ---"
           cat /tmp/pipelinerun.yaml
           kubectl apply -f /tmp/pipelinerun.yaml

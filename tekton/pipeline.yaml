@@ -20,7 +20,7 @@ spec:
     - name: image-url
       description: Registry reference the build task pushes to
       type: string
-      default: kind-registry:5001/tax-calculator:1.0.0
+      default: kind-registry:5000/tax-calculator:1.0.0
     - name: push-image
       description: Set to "true" to also push to IBM Cloud Container Registry
       type: string
