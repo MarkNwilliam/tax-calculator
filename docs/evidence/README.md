@@ -11,7 +11,7 @@ submission has real output rather than a description of it.
 | `03-docker-build-output` | Verbatim `docker build` output from CI run 36863765532 |
 | `02-docker-build.txt` | `docker build -t tax-calculator:1.0.0 .` |
 | `03-docker-image-details.txt` | image tags and `docker inspect` metadata |
-| `04-docker-run.txt` | starting the container, logs, `docker ps` |
+| `04-docker-image` | starting the container on port 8080, logs, `docker ps`, `docker port` |
 | `05-container-test.txt` | HTTP calls to the running container |
 | `06-tekton-install.txt` | kind cluster, Tekton install, tasks and pipeline applied |
 | `07-tekton-pipelinerun.txt` | the PipelineRun and its final status |

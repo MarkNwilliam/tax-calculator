@@ -20,7 +20,7 @@ npm ci
 npm test                # 7-spec acceptance suite (graded)
 npm run test:regression # 41-spec regression suite
 npm run test:all       # both, 48 specs
-npm start               # http://localhost:3000
+npm start               # http://localhost:8080
 
 # static nginx container (the five-file variant)
 cd web && docker build -t tax-calculator-web:1.0.0 .
@@ -30,8 +30,8 @@ cd web && docker build -t tax-calculator-web:1.0.0 .
 
 ```bash
 docker build -t tax-calculator:1.0.0 .
-docker run -d --name taxcalc -p 3000:3000 tax-calculator:1.0.0
-curl http://localhost:3000/api/health
+docker run -d --name tax-calculator -p 8080:8080 tax-calculator:1.0.0
+curl http://localhost:8080/api/health
 ```
 
 The image installs production dependencies only and drops to the unprivileged
@@ -70,7 +70,7 @@ runs the pipeline for real.
 | 1 | Run unit tests using Jasmine | `npx jasmine` = 7 specs, 0 failures. Evidence: `docs/evidence/01-jasmine-tests-passing`; `npm run test:all` = 48 specs via `docs/evidence/01-jasmine-unit-tests.txt` |
 | 2 | Create the Dockerfile | `Dockerfile` |
 | 3 | Build the Docker image | `docs/evidence/02-docker-build.txt` |
-| 4 | Deploy and test in a container | `docs/evidence/04-docker-run.txt`, `05-container-test.txt` |
+| 4 | Deploy and test in a container | `docs/evidence/04-docker-image`, `05-container-test.txt` |
 | 5 | Tag and push to IBM Cloud Registry | `scripts/ibmcloud-push.sh`, `docs/ibm-cloud-steps.md` |
 | 6 | Deploy the Tax Calculator on IBM Cloud | `scripts/ibmcloud-deploy.sh`, `docs/ibm-cloud-steps.md` |
 | 7 | Create the Tekton pipeline tasks | `tekton/tasks/` |

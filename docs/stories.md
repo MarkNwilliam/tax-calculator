@@ -18,7 +18,7 @@ on IBM Cloud.
 - [x] The image installs production dependencies only; Jasmine and supertest are
       excluded via `npm ci --omit=dev`.
 - [x] The container runs as a non-root user.
-- [x] The container declares `EXPOSE 3000` and a `HEALTHCHECK` against
+- [x] The container declares `EXPOSE 8080` and a `HEALTHCHECK` against
       `/api/health`.
 - [x] `docker build -t tax-calculator:1.0.0 .` succeeds.
 - [x] The image is tagged `tax-calculator:latest` for the registry push.
@@ -71,14 +71,14 @@ on IBM Cloud.
 
 **Acceptance criteria**
 
-- [x] `docker run -d -p 3000:3000 tax-calculator:1.0.0` starts the app.
+- [x] `docker run -d --name tax-calculator -p 8080:8080 tax-calculator:1.0.0` starts the app.
 - [x] `GET /api/health` returns `{"status":"ok"}` with HTTP 200.
 - [x] `POST /api/calculate` returns the correct tax for a known income.
 - [x] A negative income is rejected with HTTP 400 rather than a 500 crash.
 - [x] `GET /` serves the calculator frontend.
 - [x] The container reports `healthy` from its own `HEALTHCHECK`.
 
-**Evidence:** `docs/evidence/04-docker-run.txt`,
+**Evidence:** `docs/evidence/04-docker-image`,
 `docs/evidence/05-container-test.txt`, `screenshots/tax-calculator-running.png`
 
 **Points:** 3

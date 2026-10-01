@@ -74,56 +74,65 @@ jobs:
           mkdir -p docs/evidence
           docker build -t tax-calculator:1.0.0 . 
           {
-            echo "=== docker run -d --name taxcalc -p 3000:3000 tax-calculator:1.0.0 ==="
-            docker run -d --name taxcalc -p 3000:3000 tax-calculator:1.0.0
+            echo "=== docker run -d --name tax-calculator -p 8080:8080 tax-calculator:1.0.0 ==="
+            docker run -d --name tax-calculator -p 8080:8080 tax-calculator:1.0.0
             echo
             echo "=== container log ==="
             sleep 4
-            docker logs taxcalc
+            docker logs tax-calculator
             echo
-            echo "=== ps ==="
-            docker ps --filter name=taxcalc
-          } 2>&1 | tee docs/evidence/04-docker-run.txt
+            echo "=== docker ps ==="
+            docker ps
+            echo
+            echo "=== docker ps (wide, showing the published port) ==="
+            docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+            echo
+            echo "=== docker port tax-calculator ==="
+            docker port tax-calculator
+            echo
+            echo "=== the application answering on port 8080 ==="
+            curl -sS http://localhost:8080/api/health; echo
+          } 2>&1 | tee docs/evidence/04-docker-image
 
       - name: Exercise the running application
         run: |
           set -o pipefail
           {
             echo "=== GET /api/health ==="
-            curl -sS http://localhost:3000/api/health; echo
+            curl -sS http://localhost:8080/api/health; echo
             echo
             echo "=== POST /api/calculate (82000 income, 5000 deductions) ==="
-            curl -sS -X POST http://localhost:3000/api/calculate \
+            curl -sS -X POST http://localhost:8080/api/calculate \
               -H 'Content-Type: application/json' \
               -d '{"grossIncome":82000,"deductions":5000,"vatAmount":2400,"vatRate":0.2}'; echo
             echo
             echo "=== POST /api/calculate (negative income is rejected) ==="
-            curl -sS -o /dev/null -w 'HTTP %{http_code}\n' -X POST http://localhost:3000/api/calculate \
+            curl -sS -o /dev/null -w 'HTTP %{http_code}\n' -X POST http://localhost:8080/api/calculate \
               -H 'Content-Type: application/json' -d '{"grossIncome":-5}'
             echo
             echo "=== GET / (frontend) ==="
-            curl -sS http://localhost:3000/ | grep -o '<title>.*</title>'
+            curl -sS http://localhost:8080/ | grep -o '<title>.*</title>'
             echo
             echo "=== container HEALTHCHECK status ==="
-            docker inspect taxcalc --format '{{.State.Health.Status}}'
+            docker inspect tax-calculator --format '{{.State.Health.Status}}'
           } 2>&1 | tee docs/evidence/05-container-test.txt
 
       - name: Assert the container served correct results
         run: |
           set -o pipefail
-          HEALTH=$(curl -sS http://localhost:3000/api/health)
+          HEALTH=$(curl -sS http://localhost:8080/api/health)
           echo "health: $HEALTH"
           echo "$HEALTH" | grep -q '"status":"ok"'
-          CALC=$(curl -sS -X POST http://localhost:3000/api/calculate \
+          CALC=$(curl -sS -X POST http://localhost:8080/api/calculate \
             -H 'Content-Type: application/json' \
             -d '{"grossIncome":50000,"deductions":0}')
           echo "calc: $CALC"
           # 50000 income -> 6303.50 tax, cross-checked against the Decimal reference
           echo "$CALC" | grep -q '"incomeTax":6303.5'
-          STATUS=$(curl -sS -o /dev/null -w '%{http_code}' http://localhost:3000/)
+          STATUS=$(curl -sS -o /dev/null -w '%{http_code}' http://localhost:8080/)
           test "$STATUS" = "200"
           echo "all container assertions passed"
-          docker rm -f taxcalc >/dev/null
+          docker rm -f tax-calculator >/dev/null
 
       - uses: actions/upload-artifact@v4
         with:
