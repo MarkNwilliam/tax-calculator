@@ -46,7 +46,7 @@ if [ "$DEPLOY_TARGET" = "codeengine" ]; then
       --name "$APP_NAME" \
       --image "$IMAGE" \
       --registry-secret icr-secret \
-      --port 3000 \
+      --port 8080 \
       --min-scale 0 --max-scale 2 \
       --wait
   fi
@@ -60,9 +60,9 @@ elif [ "$DEPLOY_TARGET" = "kubernetes" ]; then
   ibmcloud ks cluster config --cluster "$IKS_CLUSTER"
 
   kubectl create deployment "$APP_NAME" \
-    --image="$IMAGE" --port=3000 --dry-run=client -o yaml | kubectl apply -f -
+    --image="$IMAGE" --port=8080 --dry-run=client -o yaml | kubectl apply -f -
   kubectl create service clusterip "$APP_NAME" \
-    --tcp=80:3000 --dry-run=client -o yaml | kubectl apply -f -
+    --tcp=80:8080 --dry-run=client -o yaml | kubectl apply -f -
 
   kubectl rollout status "deployment/$APP_NAME" --timeout=300s
 

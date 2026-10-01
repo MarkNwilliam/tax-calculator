@@ -1,0 +1,48 @@
+###############################################################################
+#  THIS IS A TEMPLATE - NOT EVIDENCE. DO NOT SUBMIT THIS FILE.
+#
+#  Task 6 needs genuine IBM Cloud deployment output. There is no IBM Cloud
+#  login, cluster or Code Engine project available on this machine, so the
+#  real file cannot be produced yet and is not being fabricated.
+#
+#  Replace every <REAL ...> placeholder with a value from a real deployment.
+#
+#  To produce the real file: create the IBM Cloud account/namespace, add the
+#  IBMCR_REGION / IBMCR_NAMESPACE / IBMCR_API_KEY GitHub Actions secrets, and
+#  run the deploy job. The app listens on 8080.
+###############################################################################
+
+=== ibmcloud login ===
+API endpoint: https://api.us-south.softlayer.com
+Logging in to account <REAL_ACCOUNT_ID>...
+
+Login Succeeded
+
+=== kubectl create deployment tax-calculator --image=icr.io/<YOUR_NAMESPACE>/tax-calculator:1.0.0 --port=8080 ===
+deployment.apps/tax-calculator created
+
+=== kubectl create service clusterip tax-calculator --tcp=80:8080 ===
+service/tax-calculator created
+
+=== kubectl rollout status deployment/tax-calculator ===
+Waiting for deployment "tax-calculator" rollout to finish: 0 of 1 updated replicas are available...
+deployment "tax-calculator" successfully rolled out
+
+=== pods ===
+NAME                              READY   STATUS    RESTARTS   AGE
+tax-calculator-<REAL_HASH>-<REAL>   1/1     Running   0          <REAL_AGE>
+
+=== service exposes the application ===
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)      AGE
+tax-calculator      ClusterIP   <REAL_IP>        <REAL_IP>     80/TCP       <REAL_AGE>
+
+=== public endpoint responds ===
+$ curl -sS https://<REAL_HOSTNAME>/api/health
+{"status":"ok","service":"tax-calculator","version":"1.0.0"}
+
+=== POST /api/calculate on the deployed app ===
+$ curl -sS -X POST https://<REAL_HOSTNAME>/api/calculate -H 'Content-Type: application/json' -d '{"grossIncome":82000,"deductions":5000,"vatAmount":2400,"vatRate":0.2}'
+{"grossIncome":82000,"deductions":5000,"taxableIncome":77000,"incomeTax":12243.5,"effectiveRate":15.9,"takeHome":64756.5,"vat":{"base":2400,"rate":0.2,"amount":480}}
+
+=== the Tax Calculator is live on IBM Cloud ===
+https://<REAL_HOSTNAME>/
