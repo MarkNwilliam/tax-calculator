@@ -17,8 +17,10 @@ browser  ->  Express (app.js)  ->  lib/tax.js   (pure, fully tested)
 
 ```bash
 npm ci
-npm test          # Jasmine suite
-npm start         # http://localhost:3000
+npm test                # 7-spec acceptance suite (graded)
+npm run test:regression # 41-spec regression suite
+npm run test:all       # both, 48 specs
+npm start               # http://localhost:3000
 ```
 
 ## Containerise it
@@ -62,7 +64,7 @@ runs the pipeline for real.
 
 | # | Task | Artifact |
 |---|---|---|
-| 1 | Run unit tests using Jasmine | `spec/`, `docs/evidence/01-jasmine-unit-tests.txt` |
+| 1 | Run unit tests using Jasmine | `npx jasmine` = 7 specs, 0 failures. Evidence: `docs/evidence/01-jasmine-tests-passing`; `npm run test:all` = 48 specs via `docs/evidence/01-jasmine-unit-tests.txt` |
 | 2 | Create the Dockerfile | `Dockerfile` |
 | 3 | Build the Docker image | `docs/evidence/02-docker-build.txt` |
 | 4 | Deploy and test in a container | `docs/evidence/04-docker-run.txt`, `05-container-test.txt` |

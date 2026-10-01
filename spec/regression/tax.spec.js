@@ -1,6 +1,6 @@
 'use strict';
 
-const tax = require('../lib/tax');
+const tax = require('../../lib/tax');
 
 describe('Tax calculator', () => {
   describe('round2', () => {

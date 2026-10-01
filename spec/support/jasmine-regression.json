@@ -1,6 +1,6 @@
 {
   "spec_dir": "spec",
-  "spec_files": ["tax-calculator.spec.js"],
+  "spec_files": ["regression/**/*[sS]pec.js"],
   "helpers": [],
   "stopSpecOnExpectationFailure": false,
   "random": false

@@ -38,7 +38,11 @@ on IBM Cloud.
 
 **Acceptance criteria**
 
-- [x] Jasmine is configured via `spec/support/jasmine.json`.
+- [x] Jasmine is configured via `spec/support/jasmine.json`, which discovers the
+      7-spec acceptance suite `spec/tax-calculator.spec.js` under the exact
+      `npx jasmine` command.
+- [x] A second config, `spec/support/jasmine-regression.json`, discovers the
+      41-spec regression suite in `spec/regression/`.
 - [x] `npm test` runs the suite and exits non-zero on failure.
 - [x] The pure calculation logic is covered without needing a server.
 - [x] The HTTP API is covered with `supertest`.
@@ -49,7 +53,10 @@ on IBM Cloud.
 - [x] Every expected figure is cross-checked against an independent reference
       implementation.
 
-**Evidence:** `spec/tax.spec.js`, `spec/api.spec.js`,
+**Evidence:** `spec/tax-calculator.spec.js` (7 specs, run with `npx jasmine`),
+`spec/regression/tax.spec.js` + `spec/regression/api.spec.js` (41 specs,
+`npm run test:regression`),
+`docs/evidence/01-jasmine-tests-passing`,
 `docs/evidence/01-jasmine-unit-tests.txt`
 
 **Points:** 5

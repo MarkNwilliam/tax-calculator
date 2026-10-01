@@ -33,8 +33,9 @@ that one command takes a commit from source to a running, verified deployment.
 
 ## Success criteria
 
-- `npm test` runs a Jasmine suite covering the tax logic and the HTTP API, and
-  the pipeline fails if any spec fails.
+- `npm test` runs a 7-spec Jasmine acceptance suite over the core tax logic and
+  `npm run test:all` adds a 41-spec regression suite covering the tax logic and
+  the HTTP API. The pipeline fails if any spec fails.
 - `docker build` produces an image that starts and answers `/api/health` with
   200, built from a committed `Dockerfile`.
 - The image is tagged and publishable to IBM Cloud Container Registry.

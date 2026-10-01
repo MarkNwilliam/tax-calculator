@@ -26,7 +26,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p docs/evidence
-          npm test 2>&1 | tee docs/evidence/01-jasmine-unit-tests.txt
+          npm run test:all 2>&1 | tee docs/evidence/01-jasmine-unit-tests.txt
       - uses: actions/upload-artifact@v4
         with:
           name: evidence-unit-tests

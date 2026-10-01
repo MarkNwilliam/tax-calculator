@@ -6,13 +6,22 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "test": "jasmine --config=spec/support/jasmine.json",
-    "test:ci": "jasmine --config=spec/support/jasmine.json"
+    "test": "npx jasmine",
+    "test:regression": "npx jasmine --config=spec/support/jasmine-regression.json",
+    "test:all": "npm test && npm run test:regression",
+    "test:ci": "npm run test:all"
   },
   "engines": {
     "node": ">=18"
   },
-  "keywords": ["tax", "calculator", "express", "jasmine", "tekton", "docker"],
+  "keywords": [
+    "tax",
+    "calculator",
+    "express",
+    "jasmine",
+    "tekton",
+    "docker"
+  ],
   "license": "MIT",
   "dependencies": {
     "express": "^4.19.2"

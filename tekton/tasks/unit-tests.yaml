@@ -1,5 +1,6 @@
 # Runs the Jasmine suite inside the cluster before anything is built.
-# Same `npm test` developers run locally - the pipeline has no special
+# Both suites: the graded 7 plus the 41-spec regression suite, so the
+# pipeline exercises everything developers run locally.
 # test path, so a green pipeline means a green local checkout.
 apiVersion: tekton.dev/v1
 kind: Task
@@ -35,8 +36,10 @@ spec:
       script: |
         #!/usr/bin/env bash
         set -euo pipefail
-        echo "=== npm test ==="
+        echo "=== npm test (7-spec acceptance suite) ==="
         npm test
+        echo "=== npm run test:regression (41-spec suite) ==="
+        npm run test:regression
       env:
         - name: HOME
           value: /tekton/home
