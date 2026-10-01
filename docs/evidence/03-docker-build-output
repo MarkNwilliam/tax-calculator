@@ -1,0 +1,105 @@
+$ docker build -t tax-calculator:1.0.0 .
+
+# Provenance: run on a GitHub Actions ubuntu-latest runner, because this
+# machine has no local container runtime. Verbatim job log, timestamps and
+# ANSI colour codes stripped.
+#   repo   : https://github.com/MarkNwilliam/tax-calculator
+#   run    : https://github.com/MarkNwilliam/tax-calculator/actions/runs/36863765532
+#   job    : 'Build the container image' (id 110374173476) - conclusion: success
+#
+# Result: image built and tagged successfully, no errors.
+
+=== docker build -t tax-calculator:1.0.0 . ===
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.12kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+#2 ...
+
+#3 [auth] library/node:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+#2 DONE 0.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 163B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 71.84kB done
+#5 DONE 0.0s
+
+#6 [1/7] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#6 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 done
+#6 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0B / 3.86MB 0.1s
+#6 sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 12.58MB / 43.23MB 0.1s
+#6 sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122 0B / 1.26MB 0.1s
+#6 sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 7.67kB / 7.67kB done
+#6 sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb 1.72kB / 1.72kB done
+#6 sha256:11cedc39e663e7c5d5cb9cc77a461a0d2adc25537b94e6831a6108f09cb2001b 6.52kB / 6.52kB done
+#6 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.86MB / 3.86MB 0.2s
+#6 sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 37.75MB / 43.23MB 0.2s
+#6 sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122 1.26MB / 1.26MB 0.2s done
+#6 sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096 0B / 445B 0.2s
+#6 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb
+#6 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.86MB / 3.86MB 0.2s done
+#6 sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 43.23MB / 43.23MB 0.4s
+#6 sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096 445B / 445B 0.4s
+#6 sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 43.23MB / 43.23MB 0.5s done
+#6 sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096 445B / 445B 0.4s done
+#6 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0.3s done
+#6 extracting sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 0.1s
+#6 extracting sha256:4feea04c154301db6f4a496efa397b3db96603b1c009c797cfdde77bea8b3287 0.9s done
+#6 extracting sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122
+#6 extracting sha256:b2cbbfe903b0821005780971ddc5892edcc4ce74c5a48d82e1d2b382edac3122 0.0s done
+#6 extracting sha256:fff4e2c1b189bf87d63ad8bd07f7f4eb288d6f2b6a07a8bb44c60e8c075d2096 done
+#6 DONE 2.4s
+
+#7 [2/7] WORKDIR /app
+#7 DONE 0.0s
+
+#8 [3/7] COPY package.json package-lock.json ./
+#8 DONE 0.0s
+
+#9 [4/7] RUN npm ci --omit=dev && npm cache clean --force
+#9 1.177
+#9 1.177 added 68 packages, and audited 69 packages in 947ms
+#9 1.177
+#9 1.177 16 packages are looking for funding
+#9 1.177   run `npm fund` for details
+#9 1.178
+#9 1.178 found 0 vulnerabilities
+#9 1.179 npm notice
+#9 1.179 npm notice New major version of npm available! 10.8.2 -> 12.2.0
+#9 1.179 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+#9 1.179 npm notice To update run: npm install -g npm@12.2.0
+#9 1.179 npm notice
+#9 1.280 npm warn using --force Recommended protections disabled.
+#9 DONE 1.5s
+
+#10 [5/7] COPY app.js ./
+#10 DONE 0.0s
+
+#11 [6/7] COPY lib ./lib
+#11 DONE 0.0s
+
+#12 [7/7] COPY public ./public
+#12 DONE 0.0s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.3s done
+#13 writing image sha256:2d29fd68c03765b1dd693da22df73dd189712519ba81f91fad509baa27b8254e done
+#13 naming to docker.io/library/tax-calculator:1.0.0 done
+#13 DONE 0.3s
+
+--- image list ---
+REPOSITORY       TAG       IMAGE ID       CREATED        SIZE
+tax-calculator   1.0.0     2d29fd68c037   1 second ago   138MB
+tax-calculator   latest    2d29fd68c037   1 second ago   138MB
+--- image details ---
+Id=sha256:2d29fd68c03765b1dd693da22df73dd189712519ba81f91fad509baa27b8254e Created=2026-10-01T12:44:42.736649043Z Size=138118065 User=node Entrypoint=[node app.js]
