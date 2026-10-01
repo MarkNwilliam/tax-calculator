@@ -32,10 +32,11 @@ spec:
         - name: DOCKER_CONFIG
           value: /kaniko/.docker
         - name: REGISTRY_AUTH_FILE
-          value: /tekton/secrets/registry-auth
+          value: /registry-auth/config.json
       volumeMounts:
+        # /tekton/ is reserved by Tekton, so the secret mounts elsewhere.
         - name: registry-auth
-          mountPath: /tekton/secrets/registry-auth
+          mountPath: /registry-auth
     - name: report
       image: alpine:3.20
       script: |

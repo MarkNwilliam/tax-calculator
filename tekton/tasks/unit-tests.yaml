@@ -16,9 +16,6 @@ spec:
       default: /workspace/source
   workspaces:
     - name: source
-  results:
-    - name: spec-count
-      description: Number of Jasmine specs that ran
   steps:
     - name: install
       image: node:20
